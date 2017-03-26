@@ -8,11 +8,11 @@
     </tr>
     <tr>
         <td colspan="3">
-            <textarea id="inputTextToSave" cols="80" rows="25"></textarea>
+            <textarea id="inputTextToSave1" cols="80" rows="25"></textarea>
         </td>
 
         <td colspan="3">
-            <textarea id="inputTextToSave" cols="80" rows="25"></textarea>
+            <textarea id="inputTextToSave2" cols="80" rows="25"></textarea>
         </td>
     </tr>
     <tr>
@@ -26,18 +26,27 @@
     </tr>
     <tr>
         <td>Select a File to Load:</td>
-        <td><input type="file" id="fileToLoad"></td>
-        <td><button onclick="loadFileAsText()">Load Selected File</button><td>
+        <td><input type="file" id="fileToLoad1"></td>
+        <td><button id='loadfile1'>Load Selected File</button><td>
 
         <td>Select a File to Load:</td>
-        <td><input type="file" id="fileToLoad"></td>
-        <td><button onclick="loadFileAsText()">Load Selected File</button><td>
+        <td><input type="file" id="fileToLoad2"></td>
+        <td><button id='loadfile2' >Load Selected File</button><td>
     </tr>
 
     
 </table>
  
 <script type="text/javascript">
+
+
+document.getElementById("loadfile1").addEventListener("click", function() {
+    loadFileAsText('fileToLoad1', 'inputTextToSave1')
+}, false);
+
+document.getElementById("loadfile2").addEventListener("click", function() {
+    loadFileAsText('fileToLoad2', 'inputTextToSave2')
+}, false);
  
 function saveTextAsFile()
 {
@@ -62,15 +71,15 @@ function destroyClickedElement(event)
     document.body.removeChild(event.target);
 }
  
-function loadFileAsText()
+function loadFileAsText(el, target)
 {
-    var fileToLoad = document.getElementById("fileToLoad").files[0];
+    var fileToLoad = document.getElementById(el).files[0];
  
     var fileReader = new FileReader();
     fileReader.onload = function(fileLoadedEvent) 
     {
         var textFromFileLoaded = fileLoadedEvent.target.result;
-        document.getElementById("inputTextToSave").value = textFromFileLoaded;
+        document.getElementById(target).value = textFromFileLoaded;
     };
     fileReader.readAsText(fileToLoad, "UTF-8");
 }
