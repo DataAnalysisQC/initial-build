@@ -5,15 +5,15 @@
  
 <table>
     <tr>
-        <td colspan="4">Analysis Code:</td>
-        <td colspan="4">Checking Code:</td>
+        <td colspan="3">Analysis Code:</td>
+        <td colspan="3">Checking Code:</td>
     </tr>
     <tr>
-        <td colspan="4">
+        <td colspan="3">
             <textarea id="AnalysisCode" cols="80" rows="25"></textarea>
         </td>
 
-        <td colspan="4">
+        <td colspan="3">
             <textarea id="CheckingCode" cols="80" rows="25"></textarea>
         </td>
     </tr>
@@ -27,31 +27,90 @@
         <td><button id="saveCheckingFile">Save</button></td>
     </tr>
 
+    <tr>
+        <td><button id="createAnalysisCodeBlock">Create a code block</button></td>
+        <td></td>
+        <td></td>
+
+        <td><button id="createCheckingCodeBlock">Create a code block</button></td>
+        <td></td>
+        <td></td>
+    </tr>
     
 </table>
+
+ 
+
+
  
 <script type="text/javascript">
 
-let analysisFile = {},
-    checkingFile = {};
+let COMMENTLOOKUP = {txt : {start : "/*", stop : "*/"}},
+    analysisFile, checkingFile;
+
+class codeArea {
+    constructor(dataloc, name){
+        this.dataloc = dataloc;
+        this.name = name;
+        this.ext = this.name.substring(this.name.indexOf('.') + 1, this.name.length);
+        this.startComment = COMMENTLOOKUP[this.ext].start;
+        this.endComment = COMMENTLOOKUP[this.ext].stop;
+        this.codeBlocks = [];
+    }
+
+    addCodeBlock(blockID, start, stop){
+        this.codeBlocks.push({blockID : blockID, 
+                                start : start, 
+                                stop : stop});
+    }
+
+    updateCodeBlocks(diff){
+        //for i in code blocks,
+            // start += diff
+            // stop += diff
+    }
+    updateText(blockID, start, stop){
+        let textarea = document.getElementById(this.dataloc); 
+        let block = (textarea.value).substring(start, stop);
+        let beforeBlock = `${this.startComment} Start of code block: ${blockID} ${this.endComment} \n`;
+        let afterBlock = `\n${this.startComment} End of code block: ${blockID} ${this.endComment} \n`;
+
+        textarea.value = (textarea.value).substring(0, start) + beforeBlock + block + afterBlock + (textarea.value).substring(stop, (textarea.value).length)
+        
+        
+    }
+}
 
 
 
+document.getElementById('createAnalysisCodeBlock').addEventListener('click', function(){
+    blockID = getUserInputFromPopup("What does this code block do?")
+    let textarea = document.getElementById("AnalysisCode"); 
+    let start = textarea.selectionStart,
+        stop = textarea.selectionEnd;
+    var selection = (textarea.value).substring(start,stop);
+    analysisFile.addCodeBlock(blockID, start, stop);
+    analysisFile.updateText(blockID, start, stop);
+
+
+    //checkingFile.addCodeBlock(blockID, '');
+});
+
+
+
+// Loads the analysis files and populates the objects with the name of the file, later used to save.
 document.getElementById('loadAnalysisFile').addEventListener('change', function(){
-    analysisFile.name = this.files[0].name;
     let file = this.files[0]
-    loadFileAsText(file, 'AnalysisCode')
+    analysisFile = new codeArea('AnalysisCode', file.name)
+    loadFileAsText(file, analysisFile)
 });
 document.getElementById('loadCheckingFile').addEventListener('change', function(){
-    checkingFile.name = this.files[0].name;
     let file = this.files[0]
-    loadFileAsText(file, 'CheckingCode')
-})
+    analysisFile = new codeArea('CheckingCode', file.name)
+    loadFileAsText(file, checkingFile)
+});
 
-
-
-
-
+// Attaches the event listeners to save the file
 document.getElementById("saveAnalysisFile").addEventListener("click", function() {
     saveTextAsFile('AnalysisCode', analysisFile.name)
 }, false);
@@ -59,6 +118,10 @@ document.getElementById("saveAnalysisFile").addEventListener("click", function()
 document.getElementById("saveCheckingFile").addEventListener("click", function() {
     saveTextAsFile('CheckingCode', checkingFile.name)
 }, false);
+
+function getUserInputFromPopup(promptText){
+    return prompt(promptText);
+};
 
  
 function saveTextAsFile(el, dest)
@@ -79,16 +142,13 @@ function saveTextAsFile(el, dest)
     downloadLink.click();
 }
  
-function destroyClickedElement(event)
-{
-    document.body.removeChild(event.target);
-}
+function destroyClickedElement(event){document.body.removeChild(event.target);}
  
-function loadFileAsText(fileToLoad, target){
+function loadFileAsText(fileToLoad, codeObject){
     var fileReader = new FileReader();
     fileReader.onload = function(fileLoadedEvent) {
         var textFromFileLoaded = fileLoadedEvent.target.result;
-        document.getElementById(target).value = textFromFileLoaded;
+        document.getElementById(codeObject.dataloc).value = textFromFileLoaded;
     };
     fileReader.readAsText(fileToLoad, "UTF-8");
 }
