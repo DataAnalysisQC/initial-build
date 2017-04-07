@@ -4,34 +4,25 @@
 <table>
     <tr>
         <td colspan="3">Analysis Code:</td>
-        <td colspan="3">QC Code:</td>
+        <td colspan="3">Checking Code:</td>
     </tr>
     <tr>
         <td colspan="3">
-            <textarea id="inputTextToSave1" cols="80" rows="25"></textarea>
+            <textarea id="AnalysisCode" cols="80" rows="25"></textarea>
         </td>
 
         <td colspan="3">
-            <textarea id="inputTextToSave2" cols="80" rows="25"></textarea>
+            <textarea id="CheckingCode" cols="80" rows="25"></textarea>
         </td>
     </tr>
     <tr>
-        <td>Filename to Save As:</td>
-        <td><input id="inputFileNameToSaveAs"></input></td>
-        <td><button onclick="saveTextAsFile()">Save Text to File</button></td>
+        <td>Load file:</td>
+        <td><input type="file" id="loadedAnalysisFile"></td>
+        <td><button onclick="saveTextAsFile()">Save</button></td>
 
-        <td>Filename to Save As:</td>
-        <td><input id="inputFileNameToSaveAs"></input></td>
-        <td><button onclick="saveTextAsFile()">Save Text to File</button></td>
-    </tr>
-    <tr>
-        <td>Select a File to Load:</td>
-        <td><input type="file" id="fileToLoad1"></td>
-        <td><button id='loadfile1'>Load Selected File</button><td>
-
-        <td>Select a File to Load:</td>
-        <td><input type="file" id="fileToLoad2"></td>
-        <td><button id='loadfile2' >Load Selected File</button><td>
+        <td>Load file:</td>
+        <td><input type="file" id="loadedCheckingFile"></td>
+        <td><button onclick="saveTextAsFile()">Save</button></td>
     </tr>
 
     
@@ -40,15 +31,29 @@
 <script type="text/javascript">
 
 
-document.getElementById("loadfile1").addEventListener("click", function() {
-    loadFileAsText('fileToLoad1', 'inputTextToSave1')
-}, false);
 
-document.getElementById("loadfile2").addEventListener("click", function() {
-    loadFileAsText('fileToLoad2', 'inputTextToSave2')
-}, false);
+document.getElementById('loadedAnalysisFile').addEventListener('change', function(){
+    let file = this.files[0]
+    loadFileAsText(file, 'AnalysisCode')
+});
+document.getElementById('loadedCheckingFile').addEventListener('change', function(){
+    let file = this.files[0]
+    loadFileAsText(file, 'CheckingCode')
+})
+
+
+
+
+
+//document.getElementById("loadfile1").addEventListener("click", function() {
+//    loadFileAsText('fileToLoad1', 'inputTextToSave1')
+//}, false);
+
+//document.getElementById("loadfile2").addEventListener("click", function() {
+//    loadFileAsText('fileToLoad2', 'inputTextToSave2')
+//}, false);
  
-function saveTextAsFile()
+function saveTextAsFile(el)
 {
     var textToSave = document.getElementById("inputTextToSave").value;
     var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
@@ -71,13 +76,9 @@ function destroyClickedElement(event)
     document.body.removeChild(event.target);
 }
  
-function loadFileAsText(el, target)
-{
-    var fileToLoad = document.getElementById(el).files[0];
- 
+function loadFileAsText(fileToLoad, target){
     var fileReader = new FileReader();
-    fileReader.onload = function(fileLoadedEvent) 
-    {
+    fileReader.onload = function(fileLoadedEvent) {
         var textFromFileLoaded = fileLoadedEvent.target.result;
         document.getElementById(target).value = textFromFileLoaded;
     };
